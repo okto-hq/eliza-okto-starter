@@ -1,6 +1,6 @@
 {
   "name": "Okto",
-  "plugins": [],
+  "plugins": ["tavily-search"],
   "clients": [],
   "modelProvider": "openrouter",
   "settings": {
