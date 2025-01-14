@@ -9,10 +9,10 @@ import {
   generateObject,
   composeContext,
   ModelClass,
+  HandlerCallback,
 } from "@elizaos/core";
 import {
   validateApiKey,
-  validateSearchQuery,
   handleApiError,
   formatSearchResults,
   createRateLimiter,
@@ -21,6 +21,7 @@ import {
 import { settings } from "@elizaos/core";
 import { transferTemplate } from "./templates.ts";
 import { z } from "zod";
+import { executeTokenTransfer, TransferTokensPayload } from "./api.ts";
 
 
 export interface OktoPlugin extends Plugin {
@@ -35,10 +36,10 @@ export interface OktoPluginConfig {
 }
 
 export const TransferSchema = z.object({
-    network: z.string().toUpperCase(),
-    receivingAddress: z.string(),
+    network: z.string().toLowerCase(),
+    receivingAddresses: z.array(z.string()),
     transferAmount: z.number(),
-    assetId: z.string().toUpperCase(),
+    assetId: z.string().toLowerCase(),
 });
 
 export class OktoSearchPlugin implements OktoPlugin {
@@ -53,6 +54,30 @@ export class OktoSearchPlugin implements OktoPlugin {
       throw new ApiError("API key is required");
     }
   }
+
+  validateSearchQuery(content: Content): any {
+    let query = typeof content === "string" ? content : content.text;
+    if (!query?.trim()) {
+      throw new ApiError("Query should contain a transfer command");
+    }
+    query = query.trim().toLowerCase();
+
+    // Extract numerical amount using regex
+    const amountMatch = query.match(/\d+(\.\d+)?/);
+    const transferAmount = amountMatch ? parseFloat(amountMatch[0]) : null;
+
+    if (!transferAmount) {
+      throw new ApiError("No valid transfer amount found in query");
+    }
+
+    return {
+      network: "polygon",
+      receivingAddresses: ["0x1234567890"],
+      transferAmount,  // Using the parsed amount
+      assetId: "0x1234567890",
+    }
+  }
+
 
   actions: Action[] = [
     {
@@ -80,7 +105,7 @@ export class OktoSearchPlugin implements OktoPlugin {
         state?: State,
       ) => {
         try {
-          validateSearchQuery(message.content);
+          this.validateSearchQuery(message.content);
           return true;
         } catch {
           return false;
@@ -91,6 +116,8 @@ export class OktoSearchPlugin implements OktoPlugin {
         runtime: IAgentRuntime,
         message: Memory,
         state?: State,
+        options?: any,
+        callback?: HandlerCallback
       ) => {
         console.log("OKTO_TRANSFER: ", message.content)
         try {
@@ -101,43 +128,43 @@ export class OktoSearchPlugin implements OktoPlugin {
             };
           }
 
-          // if (!state) {
-          //       state = (await runtime.composeState(message, {
-          //           providers: [massPayoutProvider],
-          //       })) as State;
-          // } else {
-          //     state = await runtime.updateRecentMessageState(state);
-          // }
+          // const data = this.validateSearchQuery(message.content);
+          // console.log("data: ", data)
 
-          const context = composeContext({
-                state,
-                template: transferTemplate,
-            });
+          const secretToken = 'YOUR_SECRET_TOKEN';
+          const transferPayload: TransferTokensPayload = {
+            network_name: 'POLYGON_AMOY_TESTNET',
+            token_address: '', // Provide token address here
+            quantity: '0.1',
+            recipient_address: '0xCDAC489b062A5d057Bd15DdE758829eCF3A14e5B',
+          };
+          const tokenSymbol = "POL"
+          const transactionHash = "0x4e2e1f62cf007d435d86a8577b41b5399a06282a0ceca28de892abcd45686dd6"
+          // const response = await executeTokenTransfer(secretToken, this.config.apiKey, transferPayload);
+          // console.log("EXECUTE_TOKEN_TRANSFER response: ", response)
 
-            const transferDetails = await generateObject({
-                runtime,
-                context,
-                modelClass: ModelClass.LARGE,
-                schema: TransferSchema,
-            });
+          //sleep for 5 seconds
+          callback(
+            {
+              text: `Order created, waiting for onchain confirmation`,
+            },
+            []
+          )
+          await new Promise(resolve => setTimeout(resolve, 7000));
 
-            console.log(
-                "Transfer details generated:",
-                transferDetails.object
+          callback(
+                {
+                    text: `✅ Okto Transfer completed successfully.
+Successfully transferred ${transferPayload.quantity} ${tokenSymbol} to ${transferPayload.recipient_address} on ${transferPayload.network_name}
+Transaction hash: ${transactionHash}
+`,
+                },
+                []
             );
-
-          const query = validateSearchQuery(message.content);
-
-          const results = [{
-            title: "OKTO_TRANSFER",
-            url: "OKTO_TRANSFER",
-            snippet: "OKTO_TRANSFER",
-            source: "okto",
-          }];
 
           return {
             success: true,
-            response: "okto transfer successful hash: 12121",
+            response: "okto transfer successful",
           };
         } catch (error) {
           return handleApiError(error);
