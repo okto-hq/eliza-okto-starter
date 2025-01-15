@@ -157,8 +157,7 @@ export class OktoSearchPlugin implements OktoPlugin {
             const order = await this.oktoWallet.transferTokens(data);
             console.log("ORDER: ", order)
 
-            //sleep for 3 seconds
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise(resolve => setTimeout(resolve, 10000));
 
           callback(
                 {
