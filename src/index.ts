@@ -23,7 +23,6 @@ import {
   parseArguments,
 } from "./config/index.ts";
 import { initializeDatabase } from "./database/index.ts";
-import TavilySearchPlugin  from "./plugins/tavily/index.ts";
 import OktoSearchPlugin from "./plugins/okto/index.ts";
 
 const __filename = fileURLToPath(import.meta.url);
