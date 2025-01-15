@@ -12,9 +12,7 @@ import {
   HandlerCallback,
 } from "@elizaos/core";
 import {
-  validateApiKey,
   handleApiError,
-  formatSearchResults,
   createRateLimiter,
   ApiError,
 } from "../common/utils.ts";
@@ -22,6 +20,8 @@ import { settings } from "@elizaos/core";
 import { transferTemplate } from "./templates.ts";
 import { z } from "zod";
 import { executeTokenTransfer, TransferTokensPayload } from "./api.ts";
+import { OktoWallet } from "./OktoWallet.ts";
+import { BuildType, TransferTokens } from "../common/types.ts";
 
 
 export interface OktoPlugin extends Plugin {
@@ -33,6 +33,8 @@ export interface OktoPlugin extends Plugin {
 
 export interface OktoPluginConfig {
   apiKey: string;
+  buildType: BuildType;
+  idToken: string;
 }
 
 export const TransferSchema = z.object({
@@ -47,12 +49,23 @@ export class OktoSearchPlugin implements OktoPlugin {
   readonly description: string = "Interface web3 with Okto API";
   config: OktoPluginConfig;
   private rateLimiter = createRateLimiter(60, 60000); // 60 requests per minute
+  private oktoWallet: OktoWallet;
 
   constructor(config: OktoPluginConfig) {
     console.log("LOADED: OktoSearchPlugin constructor", config);
     if (!config.apiKey) {
       throw new ApiError("API key is required");
     }
+    this.oktoWallet = new OktoWallet();
+    this.oktoWallet.init(config.apiKey, config.buildType);
+    this.oktoWallet.authenticate(config.idToken, (result: any, error: any) => {
+      if(result) {
+        console.log("OKTO_AUTHENTICATE: ", result);
+      } else {
+        console.log("OKTO_AUTHENTICATE: ", error);
+      }
+    });
+    
   }
 
   validateSearchQuery(content: Content): any {
@@ -128,39 +141,45 @@ export class OktoSearchPlugin implements OktoPlugin {
             };
           }
 
+          
+
           // const data = this.validateSearchQuery(message.content);
           // console.log("data: ", data)
 
-          const secretToken = 'YOUR_SECRET_TOKEN';
-          const transferPayload: TransferTokensPayload = {
-            network_name: 'POLYGON_AMOY_TESTNET',
-            token_address: '', // Provide token address here
-            quantity: '0.1',
-            recipient_address: '0xCDAC489b062A5d057Bd15DdE758829eCF3A14e5B',
-          };
+          const data = {
+                "network_name": "POLYGON_TESTNET_AMOY",
+                "token_address": "",
+                "recipient_address": "0xF638D541943213D42751F6BFa323ebe6e0fbEaA1",
+                "quantity": "0.001"
+            }
           const tokenSymbol = "POL"
-          const transactionHash = "0x4e2e1f62cf007d435d86a8577b41b5399a06282a0ceca28de892abcd45686dd6"
-          // const response = await executeTokenTransfer(secretToken, this.config.apiKey, transferPayload);
-          // console.log("EXECUTE_TOKEN_TRANSFER response: ", response)
+          let transactionHash = ""
 
-          //sleep for 5 seconds
-          callback(
-            {
-              text: `Order created, waiting for onchain confirmation`,
-            },
-            []
-          )
-          await new Promise(resolve => setTimeout(resolve, 7000));
+          try {
+            const order = await this.oktoWallet.transferTokens(data);
+            console.log("ORDER: ", order)
+
+            //sleep for 3 seconds
+          await new Promise(resolve => setTimeout(resolve, 3000));
 
           callback(
                 {
-                    text: `✅ Okto Transfer completed successfully.
-Successfully transferred ${transferPayload.quantity} ${tokenSymbol} to ${transferPayload.recipient_address} on ${transferPayload.network_name}
-Transaction hash: ${transactionHash}
+                    text: `✅ Okto Transfer intented submitted.
+Submitted transfer of ${data.quantity} ${tokenSymbol} to ${data.recipient_address} on ${data.network_name}
+Order ID: ${order.orderId}
 `,
                 },
                 []
             );
+          } catch (error) {
+            console.log("ERROR: ", error)
+            callback(
+                {
+                    text: `❌ Okto Transfer failed.`,
+                },
+                []
+            )
+          }
 
           return {
             success: true,
@@ -174,5 +193,7 @@ Transaction hash: ${transactionHash}
   ];
 }
 export default new OktoSearchPlugin({
-  apiKey: settings.TAVILY_API_KEY || "",
+  apiKey: settings.OKTO_API_KEY || "",
+  buildType: settings.OKTO_BUILD_TYPE as BuildType || BuildType.SANDBOX,
+  idToken: settings.OKTO_GOOGLE_ID_TOKEN || "",
 });
