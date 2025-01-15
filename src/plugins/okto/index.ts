@@ -17,9 +17,7 @@ import {
   ApiError,
 } from "../common/utils.ts";
 import { settings } from "@elizaos/core";
-import { transferTemplate } from "./templates.ts";
 import { z } from "zod";
-import { executeTokenTransfer, TransferTokensPayload } from "./api.ts";
 import { OktoWallet } from "./OktoWallet.ts";
 import { BuildType, TransferTokens } from "../common/types.ts";
 
