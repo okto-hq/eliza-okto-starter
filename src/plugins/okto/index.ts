@@ -81,12 +81,18 @@ export class OktoSearchPlugin implements OktoPlugin {
       throw new ApiError("No valid transfer amount found in query");
     }
 
-    return {
-      network: "polygon",
-      receivingAddresses: ["0x1234567890"],
-      transferAmount,  // Using the parsed amount
-      assetId: "0x1234567890",
+    // Extract the recipient address from the query that starts with 0x
+    const recipientAddress = query.match(/0x[a-fA-F0-9]{40}/)?.[0];
+    if (!recipientAddress) {
+      throw new ApiError("No valid recipient address found in query");
     }
+
+    return {
+                "network_name": "POLYGON_TESTNET_AMOY",
+                "token_address": "",
+                "recipient_address": recipientAddress,
+                "quantity": transferAmount.toString()
+            }
   }
 
 
@@ -141,15 +147,9 @@ export class OktoSearchPlugin implements OktoPlugin {
 
           
 
-          // const data = this.validateSearchQuery(message.content);
-          // console.log("data: ", data)
+          const data = this.validateSearchQuery(message.content);
+          console.log("data: ", data)
 
-          const data = {
-                "network_name": "POLYGON_TESTNET_AMOY",
-                "token_address": "",
-                "recipient_address": "0xF638D541943213D42751F6BFa323ebe6e0fbEaA1",
-                "quantity": "0.001"
-            }
           const tokenSymbol = "POL"
           let transactionHash = ""
 
