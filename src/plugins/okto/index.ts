@@ -3,7 +3,6 @@ import {
   IAgentRuntime,
   Memory,
   State,
-  ActionExample,
   Plugin,
   Action,
   generateObject,
@@ -14,13 +13,12 @@ import {
 } from "@elizaos/core";
 import {
   handleApiError,
-  createRateLimiter,
   ApiError,
 } from "../common/utils.ts";
 import { settings } from "@elizaos/core";
 import { z } from "zod";
 import { OktoWallet } from "./OktoWallet.ts";
-import { BuildType, TransferTokens } from "../common/types.ts";
+import { BuildType } from "../common/types.ts";
 import { transferTemplate } from "./templates.ts";
 
 
