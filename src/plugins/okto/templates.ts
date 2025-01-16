@@ -1,7 +1,7 @@
 export const transferTemplate = `
 Extract the following details for processing token transfer using the Okto SDK:
 - **receivingAddress** (string): The address to transfer the tokens to.
-- **transferAmount** (number): The amount to transfer to the address.
+- **transferAmount** (number): The amount to transfer to the address. This can be a decimal number as well.
 - **assetId** (string): The asset ID to transfer (e.g., ETH, BTC).
 - **network** (string): The blockchain network to use. Allowed values are:
     static networks: {
@@ -9,6 +9,7 @@ Extract the following details for processing token transfer using the Okto SDK:
         readonly Base: "BASE";
         readonly Ethereum: "ETHEREUM";
         readonly Polygon: "POLYGON";
+        readonly PolygonAmoyTestnet: "POLYGON_AMOY_TESTNET";
         readonly SolanaDevnet: "SOLANA_DEVNET";
         readonly Solana: "SOLANA";
         readonly Aptos: "APTOS";

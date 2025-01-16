@@ -10,6 +10,7 @@ import {
   composeContext,
   ModelClass,
   HandlerCallback,
+  elizaLogger
 } from "@elizaos/core";
 import {
   handleApiError,
@@ -47,7 +48,6 @@ export class OktoSearchPlugin implements OktoPlugin {
   readonly name: string = "okto";
   readonly description: string = "Interface web3 with Okto API";
   config: OktoPluginConfig;
-  private rateLimiter = createRateLimiter(60, 60000); // 60 requests per minute
   private oktoWallet: OktoWallet;
 
   constructor(config: OktoPluginConfig) {
@@ -57,13 +57,13 @@ export class OktoSearchPlugin implements OktoPlugin {
     }
     this.oktoWallet = new OktoWallet();
     this.oktoWallet.init(config.apiKey, config.buildType);
-    // this.oktoWallet.authenticate(config.idToken, (result: any, error: any) => {
-    //   if(result) {
-    //     console.log("OKTO_AUTHENTICATE: ", result);
-    //   } else {
-    //     console.log("OKTO_AUTHENTICATE: ", error);
-    //   }
-    // });
+    this.oktoWallet.authenticate(config.idToken, (result: any, error: any) => {
+      if(result) {
+        elizaLogger.info("OKTO: authentication success")
+      } else {
+        elizaLogger.warn("OKTO: authenticatoin failure ", error.message)
+      }
+    });
     
   }
 
@@ -73,28 +73,12 @@ export class OktoSearchPlugin implements OktoPlugin {
       throw new ApiError("Query should contain a transfer command");
     }
     query = query.trim().toLowerCase();
-
-    // Extract numerical amount using regex
-    const amountMatch = query.match(/\d+(\.\d+)?/);
-    const transferAmount = amountMatch ? parseFloat(amountMatch[0]) : null;
-
-    if (!transferAmount) {
-      throw new ApiError("No valid transfer amount found in query");
-    }
-
-    // Extract the recipient address from the query that starts with 0x
-    const recipientAddress = query.match(/0x[a-fA-F0-9]{40}/)?.[0];
-    if (!recipientAddress) {
-      throw new ApiError("No valid recipient address found in query");
-    }
-
-    return {
-                "network_name": "POLYGON_TESTNET_AMOY",
-                "token_address": "",
-                "recipient_address": recipientAddress,
-                "quantity": transferAmount.toString()
-            }
+    return query;
   }
+
+  isTransferContent(object: any): object is z.infer<typeof TransferSchema> {
+      return TransferSchema.safeParse(object).success;
+  };
 
 
   actions: Action[] = [
@@ -138,14 +122,7 @@ export class OktoSearchPlugin implements OktoPlugin {
         callback?: HandlerCallback
       ) => {
         try {
-          if (!this.rateLimiter.checkLimit()) {
-            return {
-              success: false,
-              response: "Rate limit exceeded. Please try again later.",
-            };
-          }
-          // const data = this.validateSearchQuery(message.content);
-          // console.log("data: ", data)
+          this.validateSearchQuery(message.content);
 
           if (!state) {
               state = (await runtime.composeState(message)) as State;
@@ -158,8 +135,6 @@ export class OktoSearchPlugin implements OktoPlugin {
               template: transferTemplate,
           });
 
-          // console.log("CONTEXT: ", context)
-
           const transferDetails = await generateObject({
                 runtime,
                 context,
@@ -167,53 +142,64 @@ export class OktoSearchPlugin implements OktoPlugin {
                 schema: TransferSchema,
             });
 
-          console.log("TRANSFER_DETAILS: ", transferDetails.object)
+          const transferObject = transferDetails.object as z.infer<typeof TransferSchema>;
+          elizaLogger.info("OKTO Token Transfer Details: ", transferObject)
+          const tokenSymbol = "POL"
+          const data ={
+                "network_name": transferObject.network,
+                "token_address": "",
+                "recipient_address": transferObject.receivingAddress,
+                "quantity": transferObject.transferAmount.toString()
+          }
 
-            // elizaLogger.info(
-            //     "Transfer details generated:",
-            //     transferDetails.object
-            // );
+          if (!this.isTransferContent(transferDetails.object)) {
+                callback(
+                    {
+                        text: "Invalid transfer details. Please check the inputs.",
+                    },
+                    []
+                );
+                return;
+            }
 
+          let transactionHash = "" // TODO: get transaction hash from okto
 
-          // const tokenSymbol = "POL"
-          // let transactionHash = ""
+          try {
+            const order = await this.oktoWallet.transferTokens(data);
+            elizaLogger.info("ORDER: ", order)
 
-          // try {
-          //   const order = await this.oktoWallet.transferTokens(data);
-          //   console.log("ORDER: ", order)
+            await new Promise(resolve => setTimeout(resolve, 10000));
 
-          // await new Promise(resolve => setTimeout(resolve, 10000));
+            callback(
+                  {
+                    text: `✅ Okto Transfer intented submitted.
+Submitted transfer of ${data.quantity} ${tokenSymbol} to ${data.recipient_address} on ${data.network_name}
+Order ID: ${order.orderId}
+`,
+                  },
+                  []
+              );
+            } catch (error) {
+              elizaLogger.error("Okto Transfer failed: ", error.message)
+              callback(
+                  {
+                      text: `❌ Okto Transfer failed.`,
+                  },
+                  []
+              )
+            }
 
-//           callback(
-//                 {
-//                     text: `✅ Okto Transfer intented submitted.
-// Submitted transfer of ${data.quantity} ${tokenSymbol} to ${data.recipient_address} on ${data.network_name}
-// Order ID: ${order.orderId}
-// `,
-//                 },
-//                 []
-//             );
-          // } catch (error) {
-          //   console.log("ERROR: ", error)
-          //   callback(
-          //       {
-          //           text: `❌ Okto Transfer failed.`,
-          //       },
-          //       []
-          //   )
-          // }
-
-          return {
-            success: true,
-            response: "okto transfer successful",
-          };
-        } catch (error) {
-          console.log("ERROR: ", error)
-          return handleApiError(error);
-        }
+            return {
+              success: true,
+              response: "okto transfer successful",
+            };
+          } catch (error) {
+            console.log("ERROR: ", error)
+            return handleApiError(error);
+          }
+        },
       },
-    },
-  ];
+    ];
 }
 export default new OktoSearchPlugin({
   apiKey: settings.OKTO_API_KEY || "",
