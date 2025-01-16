@@ -42,6 +42,7 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
         ],
       ],
       similes: ["TRANSFER", "TOKEN_TRANSFER", "OKTO_TRANSFER", "OKTO_SEND", "SEND_TOKEN"],
+      suppressInitialMessage: true,
       
       validate: async (
         runtime: IAgentRuntime,
