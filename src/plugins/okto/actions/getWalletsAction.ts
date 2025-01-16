@@ -1,8 +1,18 @@
-import { Action, composeContext, elizaLogger, generateObject, HandlerCallback, IAgentRuntime, Memory, ModelClass, State } from "@elizaos/core";
-import { transferTemplate } from "../templates.ts";
-import { z } from "zod";
+import { Action, elizaLogger, HandlerCallback, IAgentRuntime, Memory, State } from "@elizaos/core";
 import { handleApiError, validateSearchQuery } from "../../common/utils.ts";
 import { OktoSDKPlugin } from "../index.ts";
+import { Wallet } from "../../common/types.ts";
+
+function prettyPrintWallets(wallets: Wallet[]) : string {
+    if (!wallets || wallets.length === 0) {
+        return "No wallets found.";
+    }
+    
+    return wallets
+        .map((wallet, index) => 
+            `${index + 1}. ${wallet.network_name} → ${wallet.address}`)
+        .join('\n');
+}
 
 export const getWalletsAction = (plugin: OktoSDKPlugin): Action => {
     return {
@@ -12,19 +22,19 @@ export const getWalletsAction = (plugin: OktoSDKPlugin): Action => {
         [
           {
             user: "user",
-            content: { text: "transfer 1 SOL to winner.sol on solana" },
+            content: { text: "get okto wallets" },
           },
         ],
         [
           {
             user: "user",
-            content: { text: "send 1 eth token to 0x1234567890 on polygon" },
+            content: { text: "show me my okto wallets" },
           },
         ],
         [
           {
             user: "user",
-            content: { text: "transfer 0.01 POL to 0xF638D541943213D42751F6BFa323ebe6e0fbEaA1 on Polygon amoy testnet" },
+            content: { text: "fetch my okto wallets" },
           },
         ],
       ],
@@ -60,7 +70,7 @@ export const getWalletsAction = (plugin: OktoSDKPlugin): Action => {
 
             callback(
                   {
-                    text: `✅ Okto Wallets: ${JSON.stringify(wallets)}`,
+                    text: `✅ Okto Wallets: \n${prettyPrintWallets(wallets.wallets)}`,
                   },
                   []
               );
