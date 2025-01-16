@@ -10,6 +10,7 @@ import { settings } from "@elizaos/core";
 import { OktoWallet } from "./OktoWallet.ts";
 import { BuildType } from "../common/types.ts";
 import { transferTokensAction } from "./actions/transferTokensAction.ts";
+import { getWalletsAction } from "./actions/getWalletsAction.ts";
 
 
 export interface OktoPlugin extends Plugin {
@@ -52,7 +53,7 @@ export class OktoSDKPlugin implements OktoPlugin {
 
   actions: Action[] = [
     transferTokensAction(this),
-    
+    getWalletsAction(this)
   ];
 }
 export default new OktoSDKPlugin({
