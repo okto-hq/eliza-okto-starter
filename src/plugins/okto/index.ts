@@ -145,7 +145,7 @@ export class OktoSearchPlugin implements OktoPlugin {
           const tokenSymbol = "POL"
           const data ={
                 "network_name": transferObject.network,
-                "token_address": "",
+                "token_address": "", //TODO get the actual token address from symbol
                 "recipient_address": transferObject.receivingAddress,
                 "quantity": transferObject.transferAmount.toString()
           }
