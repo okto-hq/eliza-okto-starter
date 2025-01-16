@@ -1,44 +1,50 @@
 import { Action, elizaLogger, HandlerCallback, IAgentRuntime, Memory, State } from "@elizaos/core";
 import { handleApiError, validateSearchQuery } from "../../common/utils.ts";
 import { OktoSDKPlugin } from "../index.ts";
-import { Wallet } from "../../common/types.ts";
+import { PortfolioData } from "../../common/types.ts";
 
-function prettyPrintWallets(wallets: Wallet[]) : string {
-    if (!wallets || wallets.length === 0) {
-        return "No wallets found.";
+function prettyPrintPortfolio(portfolio: PortfolioData) : string {
+    if (!portfolio || portfolio.tokens.length === 0) {
+        return "No tokens found in portfolio.";
     }
     
-    return wallets
-        .map((wallet, index) => 
-            `${index + 1}. ${wallet.network_name} → ${wallet.address}`)
-        .join('\n');
+    return portfolio.tokens
+        .map((token, index) => {
+            const baseInfo = `${index + 1}. ${token.token_name} (${token.network_name})\n` +
+                           `   • Quantity: ${token.quantity}`;
+            
+            return token.token_address 
+                ? `${baseInfo}\n   • Address: \`${token.token_address}\`` 
+                : baseInfo;
+        })
+        .join('\n\n');
 }
 
-export const getWalletsAction = (plugin: OktoSDKPlugin): Action => {
+export const getPortfolioAction = (plugin: OktoSDKPlugin): Action => {
     return {
-      name: "OKTO_GET_WALLETS",
-      description: "Get Okto Wallets",
+      name: "OKTO_GET_PORTFOLIO",
+      description: "Get Okto Portfolio",
       examples: [
         [
           {
             user: "user",
-            content: { text: "get okto wallets" },
+            content: { text: "get okto portfolio" },
           },
         ],
         [
           {
             user: "user",
-            content: { text: "show me my okto wallets" },
+            content: { text: "show me my okto portfolio" },
           },
         ],
         [
           {
             user: "user",
-            content: { text: "fetch my okto wallets" },
+            content: { text: "fetch my okto portfolio" },
           },
         ],
       ],
-      similes: ["OKTO_GET_WALLETS", "GET_WALLETS", "WALLETS", "FETCH_WALLETS", "FETCH_OKTO_WALLETS"],
+      similes: ["OKTO_GET_PORTFOLIO", "GET_PORTFOLIO", "PORTFOLIO", "FETCH_PORTFOLIO", "FETCH_OKTO_PORTFOLIO"],
       suppressInitialMessage: true,
       
       validate: async (
@@ -65,20 +71,20 @@ export const getWalletsAction = (plugin: OktoSDKPlugin): Action => {
           validateSearchQuery(message.content);
 
           try {
-            const wallets = await plugin.oktoWallet.getWallets();
-            // console.log("wallets: ", wallets)
+            const portfolio = await plugin.oktoWallet.getPortfolio();
+            // console.log("portfolio: ", portfolio)
 
             callback(
                   {
-                    text: `✅ Okto Wallets: \n${prettyPrintWallets(wallets.wallets)}`,
+                    text: `✅ Okto Portfolio: \n${prettyPrintPortfolio(portfolio)}`,
                   },
                   []
               );
             } catch (error) {
-              elizaLogger.error("Okto Get Wallets failed: ", error.message)
+              elizaLogger.error("Okto Get Portfolio failed: ", error.message)
               callback(
                   {
-                      text: `❌ Okto Get Wallets failed.`,
+                      text: `❌ Okto Get Portfolio failed.`,
                   },
                   []
               )
@@ -86,7 +92,7 @@ export const getWalletsAction = (plugin: OktoSDKPlugin): Action => {
 
             return {
               success: true,
-              response: "okto get wallets successful",
+              response: "okto get portfolio successful",
             };
           } catch (error) {
             console.log("ERROR: ", error)
