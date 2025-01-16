@@ -20,6 +20,7 @@ import { settings } from "@elizaos/core";
 import { z } from "zod";
 import { OktoWallet } from "./OktoWallet.ts";
 import { BuildType, TransferTokens } from "../common/types.ts";
+import { transferTemplate } from "./templates.ts";
 
 
 export interface OktoPlugin extends Plugin {
@@ -36,10 +37,10 @@ export interface OktoPluginConfig {
 }
 
 export const TransferSchema = z.object({
-    network: z.string().toLowerCase(),
-    receivingAddresses: z.array(z.string()),
+    network: z.string().toUpperCase(),
+    receivingAddress: z.string(),
     transferAmount: z.number(),
-    assetId: z.string().toLowerCase(),
+    assetId: z.string().toUpperCase(),
 });
 
 export class OktoSearchPlugin implements OktoPlugin {
@@ -56,13 +57,13 @@ export class OktoSearchPlugin implements OktoPlugin {
     }
     this.oktoWallet = new OktoWallet();
     this.oktoWallet.init(config.apiKey, config.buildType);
-    this.oktoWallet.authenticate(config.idToken, (result: any, error: any) => {
-      if(result) {
-        console.log("OKTO_AUTHENTICATE: ", result);
-      } else {
-        console.log("OKTO_AUTHENTICATE: ", error);
-      }
-    });
+    // this.oktoWallet.authenticate(config.idToken, (result: any, error: any) => {
+    //   if(result) {
+    //     console.log("OKTO_AUTHENTICATE: ", result);
+    //   } else {
+    //     console.log("OKTO_AUTHENTICATE: ", error);
+    //   }
+    // });
     
   }
 
@@ -136,7 +137,6 @@ export class OktoSearchPlugin implements OktoPlugin {
         options?: any,
         callback?: HandlerCallback
       ) => {
-        console.log("OKTO_TRANSFER: ", message.content)
         try {
           if (!this.rateLimiter.checkLimit()) {
             return {
@@ -144,45 +144,71 @@ export class OktoSearchPlugin implements OktoPlugin {
               response: "Rate limit exceeded. Please try again later.",
             };
           }
+          // const data = this.validateSearchQuery(message.content);
+          // console.log("data: ", data)
 
-          
-
-          const data = this.validateSearchQuery(message.content);
-          console.log("data: ", data)
-
-          const tokenSymbol = "POL"
-          let transactionHash = ""
-
-          try {
-            const order = await this.oktoWallet.transferTokens(data);
-            console.log("ORDER: ", order)
-
-          await new Promise(resolve => setTimeout(resolve, 10000));
-
-          callback(
-                {
-                    text: `✅ Okto Transfer intented submitted.
-Submitted transfer of ${data.quantity} ${tokenSymbol} to ${data.recipient_address} on ${data.network_name}
-Order ID: ${order.orderId}
-`,
-                },
-                []
-            );
-          } catch (error) {
-            console.log("ERROR: ", error)
-            callback(
-                {
-                    text: `❌ Okto Transfer failed.`,
-                },
-                []
-            )
+          if (!state) {
+              state = (await runtime.composeState(message)) as State;
+          } else {
+              state = await runtime.updateRecentMessageState(state);
           }
+
+          const context = composeContext({
+              state,
+              template: transferTemplate,
+          });
+
+          // console.log("CONTEXT: ", context)
+
+          const transferDetails = await generateObject({
+                runtime,
+                context,
+                modelClass: ModelClass.LARGE,
+                schema: TransferSchema,
+            });
+
+          console.log("TRANSFER_DETAILS: ", transferDetails.object)
+
+            // elizaLogger.info(
+            //     "Transfer details generated:",
+            //     transferDetails.object
+            // );
+
+
+          // const tokenSymbol = "POL"
+          // let transactionHash = ""
+
+          // try {
+          //   const order = await this.oktoWallet.transferTokens(data);
+          //   console.log("ORDER: ", order)
+
+          // await new Promise(resolve => setTimeout(resolve, 10000));
+
+//           callback(
+//                 {
+//                     text: `✅ Okto Transfer intented submitted.
+// Submitted transfer of ${data.quantity} ${tokenSymbol} to ${data.recipient_address} on ${data.network_name}
+// Order ID: ${order.orderId}
+// `,
+//                 },
+//                 []
+//             );
+          // } catch (error) {
+          //   console.log("ERROR: ", error)
+          //   callback(
+          //       {
+          //           text: `❌ Okto Transfer failed.`,
+          //       },
+          //       []
+          //   )
+          // }
 
           return {
             success: true,
             response: "okto transfer successful",
           };
         } catch (error) {
+          console.log("ERROR: ", error)
           return handleApiError(error);
         }
       },
