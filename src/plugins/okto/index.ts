@@ -12,6 +12,7 @@ import { BuildType } from "../common/types.ts";
 import { transferTokensAction } from "./actions/transferTokensAction.ts";
 import { getWalletsAction } from "./actions/getWalletsAction.ts";
 import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
+import { orderHistoryAction } from "./actions/orderHistoryAction.ts";
 
 
 export interface OktoPlugin extends Plugin {
@@ -55,6 +56,7 @@ export class OktoSDKPlugin implements OktoPlugin {
     transferTokensAction(this),
     getWalletsAction(this),
     getPortfolioAction(this),
+    orderHistoryAction(this),
   ];
 }
 export default new OktoSDKPlugin({

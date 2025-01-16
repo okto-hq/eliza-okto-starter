@@ -74,6 +74,8 @@ export interface Order {
   order_type: string;
   status: string;
   transaction_hash: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface OrderData {
