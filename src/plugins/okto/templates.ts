@@ -9,22 +9,20 @@ Extract the following details for processing token transfer using the Okto SDK:
         readonly Base: "BASE";
         readonly Ethereum: "ETHEREUM";
         readonly Polygon: "POLYGON";
-        readonly PolygonAmoyTestnet: "POLYGON_AMOY_TESTNET";
+        readonly PolygonAmoyTestnet: "POLYGON_TESTNET_AMOY";
         readonly SolanaDevnet: "SOLANA_DEVNET";
         readonly Solana: "SOLANA";
         readonly Aptos: "APTOS";
     };
 
-Provide the details in the following JSON format:
+Only Provide the details in the following JSON format:
 
-\`\`\`json
 {
     "receivingAddress": "<receiving_address>",
     "transferAmount": <amount>,
     "assetId": "<asset_id>",
     "network": "<network>"
 }
-\`\`\`
 
 Here are the recent user messages for context:
 {{recentMessages}}

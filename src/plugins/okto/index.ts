@@ -96,6 +96,12 @@ export class OktoSearchPlugin implements OktoPlugin {
             content: { text: "send 1 eth token to 0x1234567890 on polygon" },
           },
         ],
+        [
+          {
+            user: "user",
+            content: { text: "transfer 0.01 POL to 0xF638D541943213D42751F6BFa323ebe6e0fbEaA1 on Polygon amoy testnet" },
+          },
+        ],
       ],
       similes: ["TRANSFER", "TOKEN_TRANSFER", "OKTO_TRANSFER", "OKTO_SEND", "SEND_TOKEN"],
       
