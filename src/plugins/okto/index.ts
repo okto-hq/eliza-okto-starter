@@ -34,7 +34,6 @@ export class OktoSDKPlugin implements OktoPlugin {
   public oktoWallet: OktoWallet;
 
   constructor(config: OktoPluginConfig) {
-    console.log("LOADED: OktoSearchPlugin constructor", config);
     if (!config.apiKey) {
       throw new ApiError("API key is required");
     }
