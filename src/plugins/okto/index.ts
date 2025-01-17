@@ -13,7 +13,7 @@ import { transferTokensAction } from "./actions/transferTokensAction.ts";
 import { getWalletsAction } from "./actions/getWalletsAction.ts";
 import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
 import { orderHistoryAction } from "./actions/orderHistoryAction.ts";
-
+import { getGoogleIdToken } from "./google.ts";
 
 export interface OktoPlugin extends Plugin {
   name: string;
@@ -25,9 +25,10 @@ export interface OktoPlugin extends Plugin {
 export interface OktoPluginConfig {
   apiKey: string;
   buildType: BuildType;
-  idToken: string;
+  googleClientId: string;
+  googleClientSecret: string;
+  idToken?: string;
 }
-
 
 export class OktoSDKPlugin implements OktoPlugin {
   readonly name: string = "okto";
@@ -41,16 +42,19 @@ export class OktoSDKPlugin implements OktoPlugin {
     }
     this.oktoWallet = new OktoWallet();
     this.oktoWallet.init(config.apiKey, config.buildType);
-    this.oktoWallet.authenticate(config.idToken, (result: any, error: any) => {
-      if(result) {
-        elizaLogger.info("OKTO: authentication success")
-      } else {
-        elizaLogger.warn("OKTO: authenticatoin failure ", error.message)
-      }
-    });
+    
+    getGoogleIdToken(config.googleClientId, config.googleClientSecret).then((tokens: any) => {
+      elizaLogger.info("Google login success")
+      this.oktoWallet.authenticate(tokens.id_token, (result: any, error: any) => {
+        if(result) {
+          elizaLogger.info("OKTO: authentication success")
+        } else {
+          elizaLogger.warn("OKTO: authenticatoin failure ", error.message)
+        }
+      });
+    })
     
   }
-  
 
   actions: Action[] = [
     transferTokensAction(this),
@@ -62,5 +66,7 @@ export class OktoSDKPlugin implements OktoPlugin {
 export default new OktoSDKPlugin({
   apiKey: settings.OKTO_API_KEY || "",
   buildType: settings.OKTO_BUILD_TYPE as BuildType || BuildType.SANDBOX,
+  googleClientId: settings.GOOGLE_CLIENT_ID || "",
+  googleClientSecret: settings.GOOGLE_CLIENT_SECRET || "",
   idToken: settings.OKTO_GOOGLE_ID_TOKEN || "",
 });
