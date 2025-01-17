@@ -81,7 +81,7 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
           const transferDetails = await generateObject({
                 runtime,
                 context,
-                modelClass: ModelClass.LARGE,
+                modelClass: ModelClass.SMALL,
                 schema: TransferSchema,
             });
 
