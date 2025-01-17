@@ -19,7 +19,7 @@ Only Provide the details in the following JSON format:
 
 {
     "receivingAddress": "<receiving_address>",
-    "transferAmount": "<amount>",
+    "transferAmount": <amount>,
     "assetId": "<asset_id>",
     "network": "<network>"
 }
