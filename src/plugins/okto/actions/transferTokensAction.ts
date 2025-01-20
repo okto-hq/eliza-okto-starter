@@ -83,6 +83,7 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
                 context,
                 modelClass: ModelClass.SMALL,
                 schema: TransferSchema,
+                mode: "auto"
             });
 
           const transferObject = transferDetails.object as z.infer<typeof TransferSchema>;
