@@ -1,4 +1,5 @@
 import { Content } from "@elizaos/core";
+import { NETWORK_TOKEN_ADDRESS } from "./constants.ts";
 
 export class ApiError extends Error {
   constructor(
@@ -66,3 +67,21 @@ export const createRateLimiter = (maxRequests: number, timeWindow: number) => {
     },
   };
 };
+
+
+export function getTokenAddress(network: string, tokenSymbol: string): string {
+  const normalizedNetwork = network.toUpperCase();
+  const normalizedToken = tokenSymbol.toUpperCase();
+
+  if (!(normalizedNetwork in NETWORK_TOKEN_ADDRESS)) {
+    throw new Error(`Network "${network}" not supported`);
+  }
+
+  const networkTokens = NETWORK_TOKEN_ADDRESS[normalizedNetwork as keyof typeof NETWORK_TOKEN_ADDRESS];
+  
+  if (!(normalizedToken in networkTokens)) {
+    throw new Error(`Token "${tokenSymbol}" not supported for network "${network}"`);
+  }
+
+  return networkTokens[normalizedToken as keyof typeof networkTokens];
+}

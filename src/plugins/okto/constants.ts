@@ -42,6 +42,7 @@ export const NETWORK_TOKEN_ADDRESS = {
   },
   POLYGON_TESTNET_AMOY: {
     MATIC: "",
+    POL: "",
     USDC: "0x41e94eb019c0762f9bfcf9fb1e58725bfb0e7582",
   },
   SOLANA: {

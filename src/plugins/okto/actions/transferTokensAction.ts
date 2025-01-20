@@ -1,7 +1,7 @@
 import { Action, composeContext, elizaLogger, generateObject, HandlerCallback, IAgentRuntime, Memory, ModelClass, State } from "@elizaos/core";
 import { transferTemplate } from "../templates.ts";
 import { z } from "zod";
-import { handleApiError, validateSearchQuery } from "../utils.ts";
+import { getTokenAddress, handleApiError, validateSearchQuery } from "../utils.ts";
 import { OktoSDKPlugin } from "../index.ts";
 
 export const TransferSchema = z.object({
@@ -88,10 +88,21 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
 
           const transferObject = transferDetails.object as z.infer<typeof TransferSchema>;
           elizaLogger.info("OKTO Token Transfer Details: ", transferObject)
-          const tokenSymbol = "POL"
+          let tokenAddress = ""
+          try {
+            tokenAddress = getTokenAddress(transferObject.network, transferObject.assetId)
+          } catch (error) {
+            elizaLogger.error("Error getting token address: ", error)
+            callback(
+                {
+                    text: "Invalid token symbol. Please check the inputs.",
+                },
+                []
+            )
+          }
           const data ={
                 "network_name": transferObject.network,
-                "token_address": "", //TODO get the actual token address from symbol
+                "token_address": tokenAddress,
                 "recipient_address": transferObject.receivingAddress,
                 "quantity": transferObject.transferAmount.toString()
           }
@@ -117,7 +128,7 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
             callback(
                   {
                     text: `✅ Okto Transfer intented submitted.
-Submitted transfer of ${data.quantity} ${tokenSymbol} to ${data.recipient_address} on ${data.network_name}
+Submitted transfer of ${data.quantity} ${transferObject.assetId} to ${data.recipient_address} on ${data.network_name}
 Order ID: ${order.orderId}
 `,
                   },
