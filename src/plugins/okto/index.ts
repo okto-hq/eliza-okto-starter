@@ -55,7 +55,6 @@ export class OktoSDKPlugin implements OktoPlugin {
         }
       });
     })
-    
   }
 
   actions: Action[] = [

@@ -72,3 +72,9 @@ export const NETWORK_TOKEN_ADDRESS = {
     WETH: "",
   },
 };
+
+export const SUPPORTED_NETWORKS = Object.keys(NETWORK_TOKEN_ADDRESS);
+export const SUPPORTED_TOKENS = [...new Set(
+  Object.values(NETWORK_TOKEN_ADDRESS)
+    .flatMap(networkTokens => Object.keys(networkTokens))
+)];
