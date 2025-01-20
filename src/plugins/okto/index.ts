@@ -48,6 +48,8 @@ export class OktoSDKPlugin implements OktoPlugin {
       this.oktoWallet.authenticate(tokens.id_token, (result: any, error: any) => {
         if(result) {
           elizaLogger.info("OKTO: authentication success")
+          //todo: Check if this is needed, adding for safety now.
+          this.oktoWallet.createWallet();
         } else {
           elizaLogger.warn("OKTO: authenticatoin failure ", error.message)
         }
