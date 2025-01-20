@@ -2,7 +2,7 @@
   "name": "Okto",
   "plugins": ["okto"],
   "clients": [],
-  "modelProvider": "openrouter",
+  "modelProvider": "anthropic",
   "settings": {
     "secrets": {},
     "voice": {
