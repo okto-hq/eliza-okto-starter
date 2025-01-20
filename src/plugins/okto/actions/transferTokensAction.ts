@@ -1,7 +1,7 @@
 import { Action, composeContext, elizaLogger, generateObject, HandlerCallback, IAgentRuntime, Memory, ModelClass, State } from "@elizaos/core";
 import { transferTemplate } from "../templates.ts";
 import { z } from "zod";
-import { handleApiError, validateSearchQuery } from "../../common/utils.ts";
+import { handleApiError, validateSearchQuery } from "../utils.ts";
 import { OktoSDKPlugin } from "../index.ts";
 
 export const TransferSchema = z.object({

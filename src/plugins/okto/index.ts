@@ -5,10 +5,10 @@ import {
 } from "@elizaos/core";
 import {
   ApiError,
-} from "../common/utils.ts";
+} from "./utils.ts";
 import { settings } from "@elizaos/core";
 import { OktoWallet } from "./OktoWallet.ts";
-import { BuildType } from "../common/types.ts";
+import { BuildType } from "./types.ts";
 import { transferTokensAction } from "./actions/transferTokensAction.ts";
 import { getWalletsAction } from "./actions/getWalletsAction.ts";
 import { getPortfolioAction } from "./actions/getPortfolioAction.ts";

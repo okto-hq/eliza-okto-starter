@@ -1,11 +1,11 @@
 import axios, { type AxiosInstance } from 'axios';
-import * as Types from '../common/types.ts';
-import { BuildType } from '../common/types.ts';
+import * as Types from './types.ts';
+import { BuildType } from './types.ts';
 import {
   baseUrls,
   JOB_MAX_RETRY,
   JOB_RETRY_INTERVAL,
-} from '../common/constants.ts';
+} from './constants.ts';
 
 export function getQueryString(query: any) {
   const queryParams: string[] = [];

@@ -1,7 +1,7 @@
 import { Action, elizaLogger, HandlerCallback, IAgentRuntime, Memory, State } from "@elizaos/core";
-import { handleApiError, validateSearchQuery } from "../../common/utils.ts";
+import { handleApiError, validateSearchQuery } from "../utils.ts";
 import { OktoSDKPlugin } from "../index.ts";
-import { Wallet } from "../../common/types.ts";
+import { Wallet } from "../types.ts";
 
 function prettyPrintWallets(wallets: Wallet[]) : string {
     if (!wallets || wallets.length === 0) {

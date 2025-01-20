@@ -1,7 +1,7 @@
 import { Action, elizaLogger, HandlerCallback, IAgentRuntime, Memory, State } from "@elizaos/core";
-import { handleApiError, validateSearchQuery } from "../../common/utils.ts";
+import { handleApiError, validateSearchQuery } from "../utils.ts";
 import { OktoSDKPlugin } from "../index.ts";
-import { PortfolioData } from "../../common/types.ts";
+import { PortfolioData } from "../types.ts";
 
 function prettyPrintPortfolio(portfolio: PortfolioData) : string {
     if (!portfolio || portfolio.tokens.length === 0) {
