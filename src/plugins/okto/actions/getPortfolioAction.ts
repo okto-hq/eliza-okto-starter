@@ -74,7 +74,7 @@ export const getPortfolioAction = (plugin: OktoSDKPlugin): Action => {
             const portfolio = await plugin.oktoWallet.getPortfolio();
             // console.log("portfolio: ", portfolio)
 
-            callback(
+            callback?.(
                   {
                     text: `✅ Okto Portfolio: \n${prettyPrintPortfolio(portfolio)}`,
                   },
@@ -82,7 +82,7 @@ export const getPortfolioAction = (plugin: OktoSDKPlugin): Action => {
               );
             } catch (error) {
               elizaLogger.error("Okto Get Portfolio failed: ", error.message)
-              callback(
+              callback?.(
                   {
                       text: `❌ Okto Get Portfolio failed.`,
                   },

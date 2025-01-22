@@ -68,7 +68,7 @@ export const getWalletsAction = (plugin: OktoSDKPlugin): Action => {
             const wallets = await plugin.oktoWallet.getWallets();
             // console.log("wallets: ", wallets)
 
-            callback(
+            callback?.(
                   {
                     text: `✅ Okto Wallets: \n${prettyPrintWallets(wallets.wallets)}`,
                   },
@@ -76,7 +76,7 @@ export const getWalletsAction = (plugin: OktoSDKPlugin): Action => {
               );
             } catch (error) {
               elizaLogger.error("Okto Get Wallets failed: ", error.message)
-              callback(
+              callback?.(
                   {
                       text: `❌ Okto Get Wallets failed.`,
                   },

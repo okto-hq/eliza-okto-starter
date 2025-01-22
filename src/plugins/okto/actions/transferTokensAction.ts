@@ -93,7 +93,7 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
             tokenAddress = getTokenAddress(transferObject.network, transferObject.assetId)
           } catch (error) {
             elizaLogger.error("Error getting token address: ", error)
-            callback(
+            callback?.(
                 {
                     text: "Invalid token symbol. Please check the inputs.",
                 },
@@ -108,7 +108,7 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
           }
 
           if (!isTransferContent(transferDetails.object)) {
-                callback(
+                callback?.(
                     {
                         text: "Invalid transfer details. Please check the inputs.",
                     },
@@ -125,7 +125,7 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
 
             await new Promise(resolve => setTimeout(resolve, 10000));
 
-            callback(
+            callback?.(
                   {
                     text: `✅ Okto Transfer intented submitted.
 Submitted transfer of ${data.quantity} ${transferObject.assetId} to ${data.recipient_address} on ${data.network_name}
@@ -136,7 +136,7 @@ Order ID: ${order.orderId}
               );
             } catch (error) {
               elizaLogger.error("Okto Transfer failed: ", error.message)
-              callback(
+              callback?.(
                   {
                       text: `❌ Okto Transfer failed.`,
                   },

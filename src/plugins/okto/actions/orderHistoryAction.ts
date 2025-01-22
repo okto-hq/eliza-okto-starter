@@ -78,7 +78,7 @@ export const orderHistoryAction = (plugin: OktoSDKPlugin): Action => {
             const orders = await plugin.oktoWallet.orderHistory({});
             // console.log("orders: ", orders)
 
-            callback(
+            callback?.(
                   {
                     text: `✅ Okto Order History: \n${prettyPrintOrderHistory(orders)}`,
                   },
@@ -86,7 +86,7 @@ export const orderHistoryAction = (plugin: OktoSDKPlugin): Action => {
               );
             } catch (error) {
               elizaLogger.error("Okto Get Order History failed: ", error.message)
-              callback(
+              callback?.(
                   {
                       text: `❌ Okto Get Order History failed.`,
                   },
