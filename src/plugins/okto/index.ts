@@ -14,6 +14,7 @@ import { getWalletsAction } from "./actions/getWalletsAction.ts";
 import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
 import { orderHistoryAction } from "./actions/orderHistoryAction.ts";
 import { getGoogleIdToken } from "./google.ts";
+import { swapTokenAction } from "./actions/swapTokenAction.ts";
 
 export interface OktoPlugin extends Plugin {
   name: string;
@@ -62,6 +63,7 @@ export class OktoSDKPlugin implements OktoPlugin {
     getWalletsAction(this),
     getPortfolioAction(this),
     orderHistoryAction(this),
+    swapTokenAction(this),
   ];
 }
 export default new OktoSDKPlugin({
