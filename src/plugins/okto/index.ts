@@ -9,15 +9,11 @@ import {
 import { settings } from "@elizaos/core";
 import { OktoClient, OktoClientConfig } from '@okto_web3/core-js-sdk';
 import { getPortfolio, getAccount, getChains, getNftCollections, getOrdersHistory, getPortfolioNFT, getTokens } from "@okto_web3/core-js-sdk/explorer";
-// import { transferTokensAction } from "./actions/transferTokensAction.ts";
-// import { getWalletsAction } from "./actions/getWalletsAction.ts";
-// import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
-// import { orderHistoryAction } from "./actions/orderHistoryAction.ts";
-// import { swapTokenAction } from "./actions/swapTokenAction.ts";
 import { getGoogleIdToken } from "./google.ts";
 import { GetSupportedNetworksResponseData, Order, UserNFTBalance, UserPortfolioData } from "@okto_web3/core-js-sdk/types";
 import { tokenTransfer, nftTransfer, evmRawTransaction } from "@okto_web3/core-js-sdk/userop";
 import { NFTTransferIntentParams, RawTransactionIntentParams, TokenTransferIntentParams, Token, Wallet } from "./types.ts";
+import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
 
 export class OktoPlugin implements Plugin {
   readonly name: string = "okto";
@@ -64,7 +60,7 @@ export class OktoPlugin implements Plugin {
   }
 
   actions: Action[] = [
-    // getPortfolioAction(this),
+    getPortfolioAction(this),
     // transferTokensAction(this),
     // getWalletsAction(this),
     // orderHistoryAction(this),
