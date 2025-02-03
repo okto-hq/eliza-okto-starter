@@ -15,37 +15,39 @@ import { OktoClient, OktoClientConfig } from '@okto_web3/core-js-sdk';
 // import { swapTokenAction } from "./actions/swapTokenAction.ts";
 import { getGoogleIdToken } from "./google.ts";
 
-export interface OktoPlugin extends Plugin {
-  name: string;
-  description: string;
-  actions: Action[];
-  config: OktoPluginConfig;
-}
 
-export interface OktoPluginConfig {
-  environment: string;
-  vendorPrivKey: string;
-  vendorSWA: string;
-  googleClientId: string;
-  googleClientSecret: string;
-}
-
-export class OktoSDKPlugin implements OktoPlugin {
+export class OktoPlugin implements Plugin {
   readonly name: string = "okto";
   readonly description: string = "Interface web3 with Okto API";
-  config: OktoPluginConfig;
   public oktoClient: OktoClient;
-;
 
-  constructor(config: OktoPluginConfig) {
+  constructor() {
+    const environment = settings.OKTO_ENVIRONMENT || "sandbox";
+    const vendorPrivKey = settings.OKTO_VENDOR_PRIVATE_KEY;
+    if (!vendorPrivKey) {
+      throw new Error("OKTO_VENDOR_PRIVATE_KEY is required for OktoPlugin and is not set");
+    }
+    const vendorSWA = settings.OKTO_VENDOR_SWA;
+    if (!vendorSWA) {
+      throw new Error("OKTO_VENDOR_SWA is required for OktoPlugin and is not set");
+    }
+    const googleClientId = settings.GOOGLE_CLIENT_ID;
+    if (!googleClientId) {
+      throw new Error("GOOGLE_CLIENT_ID is required for OktoPlugin and is not set");
+    }
+    const googleClientSecret = settings.GOOGLE_CLIENT_SECRET;
+    if (!googleClientSecret) {
+      throw new Error("GOOGLE_CLIENT_SECRET is required for OktoPlugin and is not set");
+    }
+
     const clientConfig: OktoClientConfig = {
-      environment: config.environment as any,
-      vendorPrivKey: config.vendorPrivKey as any,
-      vendorSWA: config.vendorSWA as any,
+      environment: environment as any,
+      vendorPrivKey: vendorPrivKey as any,
+      vendorSWA: vendorSWA as any,
     }
     this.oktoClient = new OktoClient(clientConfig);
     
-    getGoogleIdToken(config.googleClientId, config.googleClientSecret).then(async (tokens: any) => {
+    getGoogleIdToken(googleClientId, googleClientSecret).then(async (tokens: any) => {
       try {
         const user = await this.oktoClient.loginUsingOAuth({
           idToken: tokens.id_token,
@@ -59,17 +61,11 @@ export class OktoSDKPlugin implements OktoPlugin {
   }
 
   actions: Action[] = [
+    // getPortfolioAction(this),
     // transferTokensAction(this),
     // getWalletsAction(this),
-    // getPortfolioAction(this),
     // orderHistoryAction(this),
     // swapTokenAction(this),
   ];
 }
-export default new OktoSDKPlugin({
-  environment: settings.OKTO_ENVIRONMENT || "sandbox",
-  vendorPrivKey: settings.OKTO_VENDOR_PRIVATE_KEY || "", // todo: throw error if not set
-  vendorSWA: settings.OKTO_VENDOR_SWA || "",
-  googleClientId: settings.GOOGLE_CLIENT_ID || "",
-  googleClientSecret: settings.GOOGLE_CLIENT_SECRET || "",
-});
+export default new OktoPlugin();
