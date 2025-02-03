@@ -15,6 +15,7 @@ import { tokenTransfer, nftTransfer, evmRawTransaction } from "@okto_web3/core-j
 import { NFTTransferIntentParams, RawTransactionIntentParams, TokenTransferIntentParams, Token, Wallet } from "./types.ts";
 import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
 import { getAccountAction } from "./actions/getAccountAction.ts";
+import { getChainAction } from "./actions/getChainAction.ts";
 
 export class OktoPlugin implements Plugin {
   readonly name: string = "okto";
@@ -63,6 +64,7 @@ export class OktoPlugin implements Plugin {
   actions: Action[] = [
     getPortfolioAction(this),
     getAccountAction(this),
+    getChainAction(this),
     // transferTokensAction(this),
     // getWalletsAction(this),
     // orderHistoryAction(this),
