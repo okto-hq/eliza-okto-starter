@@ -15,6 +15,7 @@ import { getAccountAction } from "./actions/getAccountAction.ts";
 import { getChainAction } from "./actions/getChainAction.ts";
 import { getNftCollectionsAction } from "./actions/getNftCollectionsAction.ts";
 import { getOrdersHistoryAction } from "./actions/getOrdersHistoryAction.ts";
+import { getPortfolioNftAction } from "./actions/getPortfolioNftAction.ts";
 
 export class OktoPlugin implements Plugin {
   readonly name: string = "okto";
@@ -66,6 +67,7 @@ export class OktoPlugin implements Plugin {
     getChainAction(this),
     getNftCollectionsAction(this),
     getOrdersHistoryAction(this),
+    getPortfolioNftAction(this),
   ];
 
   async getPortfolio(): Promise<UserPortfolioData> {
