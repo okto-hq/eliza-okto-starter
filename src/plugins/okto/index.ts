@@ -13,8 +13,8 @@ import { NFTTransferIntentParams, RawTransactionIntentParams, TokenTransferInten
 import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
 import { getAccountAction } from "./actions/getAccountAction.ts";
 import { getChainAction } from "./actions/getChainAction.ts";
-import { getNftCollectionsAction } from "./actions/getNftCollections.ts";
-import { getOrdersHistoryAction } from "./actions/getOrdersHistory.ts";
+import { getNftCollectionsAction } from "./actions/getNftCollectionsAction.ts";
+import { getOrdersHistoryAction } from "./actions/getOrdersHistoryAction.ts";
 
 export class OktoPlugin implements Plugin {
   readonly name: string = "okto";
