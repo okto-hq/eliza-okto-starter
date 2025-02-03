@@ -3,9 +3,6 @@ import {
   Action,
   elizaLogger
 } from "@elizaos/core";
-import {
-  ApiError,
-} from "./utils.ts";
 import { settings } from "@elizaos/core";
 import { OktoClient, OktoClientConfig } from '@okto_web3/core-js-sdk';
 import { getPortfolio, getAccount, getChains, getNftCollections, getOrdersHistory, getPortfolioNFT, getTokens } from "@okto_web3/core-js-sdk/explorer";
@@ -65,10 +62,6 @@ export class OktoPlugin implements Plugin {
     getPortfolioAction(this),
     getAccountAction(this),
     getChainAction(this),
-    // transferTokensAction(this),
-    // getWalletsAction(this),
-    // orderHistoryAction(this),
-    // swapTokenAction(this),
   ];
 
   async getPortfolio(): Promise<UserPortfolioData> {
