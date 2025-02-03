@@ -8,13 +8,14 @@ import {
 } from "./utils.ts";
 import { settings } from "@elizaos/core";
 import { OktoClient, OktoClientConfig } from '@okto_web3/core-js-sdk';
+import { getPortfolio, getAccount, getChains, getNftCollections, getOrdersHistory, getPortfolioNFT, getTokens } from "@okto_web3/core-js-sdk/explorer";
 // import { transferTokensAction } from "./actions/transferTokensAction.ts";
 // import { getWalletsAction } from "./actions/getWalletsAction.ts";
 // import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
 // import { orderHistoryAction } from "./actions/orderHistoryAction.ts";
 // import { swapTokenAction } from "./actions/swapTokenAction.ts";
 import { getGoogleIdToken } from "./google.ts";
-
+import { GetSupportedNetworksResponseData, Order, Token, UserNFTBalance, UserPortfolioData } from "@okto_web3/core-js-sdk/types";
 
 export class OktoPlugin implements Plugin {
   readonly name: string = "okto";
@@ -67,5 +68,34 @@ export class OktoPlugin implements Plugin {
     // orderHistoryAction(this),
     // swapTokenAction(this),
   ];
+
+  async getPortfolio(): Promise<UserPortfolioData> {
+    return await getPortfolio(this.oktoClient);
+  }
+
+  async getAccount(): Promise<ReturnType<typeof getAccount>> {
+    return await getAccount(this.oktoClient);
+  }
+
+  async getChains(): Promise<GetSupportedNetworksResponseData[]> {
+    return await getChains(this.oktoClient);
+  }
+
+  async getNftCollections(): Promise<Order[]> {
+    return await getNftCollections(this.oktoClient);
+  }
+
+  async getOrdersHistory(): Promise<Order[]> {
+    return await getOrdersHistory(this.oktoClient);
+  }
+
+  async getPortfolioNFT(): Promise<UserNFTBalance[]> {
+    return await getPortfolioNFT(this.oktoClient);
+  }
+
+  async getTokens(): Promise<ReturnType<typeof getTokens>> {
+    return await getTokens(this.oktoClient);
+  }
+
 }
 export default new OktoPlugin();
