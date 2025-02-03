@@ -13,6 +13,7 @@ import { NFTTransferIntentParams, RawTransactionIntentParams, TokenTransferInten
 import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
 import { getAccountAction } from "./actions/getAccountAction.ts";
 import { getChainAction } from "./actions/getChainAction.ts";
+import { getNftCollectionsAction } from "./actions/getNftCollections.ts";
 
 export class OktoPlugin implements Plugin {
   readonly name: string = "okto";
@@ -62,6 +63,7 @@ export class OktoPlugin implements Plugin {
     getPortfolioAction(this),
     getAccountAction(this),
     getChainAction(this),
+    getNftCollectionsAction(this),
   ];
 
   async getPortfolio(): Promise<UserPortfolioData> {
