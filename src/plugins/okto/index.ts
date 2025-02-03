@@ -7,14 +7,13 @@ import {
   ApiError,
 } from "./utils.ts";
 import { settings } from "@elizaos/core";
-import { OktoWallet } from "./OktoWallet.ts";
-import { BuildType } from "./types.ts";
-import { transferTokensAction } from "./actions/transferTokensAction.ts";
-import { getWalletsAction } from "./actions/getWalletsAction.ts";
-import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
-import { orderHistoryAction } from "./actions/orderHistoryAction.ts";
+import { OktoClient, OktoClientConfig } from '@okto_web3/core-js-sdk';
+// import { transferTokensAction } from "./actions/transferTokensAction.ts";
+// import { getWalletsAction } from "./actions/getWalletsAction.ts";
+// import { getPortfolioAction } from "./actions/getPortfolioAction.ts";
+// import { orderHistoryAction } from "./actions/orderHistoryAction.ts";
+// import { swapTokenAction } from "./actions/swapTokenAction.ts";
 import { getGoogleIdToken } from "./google.ts";
-import { swapTokenAction } from "./actions/swapTokenAction.ts";
 
 export interface OktoPlugin extends Plugin {
   name: string;
@@ -24,52 +23,53 @@ export interface OktoPlugin extends Plugin {
 }
 
 export interface OktoPluginConfig {
-  apiKey: string;
-  buildType: BuildType;
+  environment: string;
+  vendorPrivKey: string;
+  vendorSWA: string;
   googleClientId: string;
   googleClientSecret: string;
-  idToken?: string;
 }
 
 export class OktoSDKPlugin implements OktoPlugin {
   readonly name: string = "okto";
   readonly description: string = "Interface web3 with Okto API";
   config: OktoPluginConfig;
-  public oktoWallet: OktoWallet;
+  public oktoClient: OktoClient;
+;
 
   constructor(config: OktoPluginConfig) {
-    if (!config.apiKey) {
-      throw new ApiError("API key is required");
+    const clientConfig: OktoClientConfig = {
+      environment: config.environment as any,
+      vendorPrivKey: config.vendorPrivKey as any,
+      vendorSWA: config.vendorSWA as any,
     }
-    this.oktoWallet = new OktoWallet();
-    this.oktoWallet.init(config.apiKey, config.buildType);
+    this.oktoClient = new OktoClient(clientConfig);
     
-    getGoogleIdToken(config.googleClientId, config.googleClientSecret).then((tokens: any) => {
-      elizaLogger.info("Google login success")
-      this.oktoWallet.authenticate(tokens.id_token, (result: any, error: any) => {
-        if(result) {
-          elizaLogger.info("OKTO: authentication success")
-          //todo: Check if this is needed, adding for safety now.
-          this.oktoWallet.createWallet();
-        } else {
-          elizaLogger.warn("OKTO: authenticatoin failure ", error.message)
-        }
-      });
+    getGoogleIdToken(config.googleClientId, config.googleClientSecret).then(async (tokens: any) => {
+      try {
+        const user = await this.oktoClient.loginUsingOAuth({
+          idToken: tokens.id_token,
+          provider: 'google',
+        });
+        elizaLogger.info("Okto Authenticateion Success", JSON.stringify(user, null, 2));
+      } catch (error: any) {
+        elizaLogger.error("Okto Authenticateion Error", error.message);
+      }
     })
   }
 
   actions: Action[] = [
-    transferTokensAction(this),
-    getWalletsAction(this),
-    getPortfolioAction(this),
-    orderHistoryAction(this),
-    swapTokenAction(this),
+    // transferTokensAction(this),
+    // getWalletsAction(this),
+    // getPortfolioAction(this),
+    // orderHistoryAction(this),
+    // swapTokenAction(this),
   ];
 }
 export default new OktoSDKPlugin({
-  apiKey: settings.OKTO_API_KEY || "",
-  buildType: settings.OKTO_BUILD_TYPE as BuildType || BuildType.SANDBOX,
+  environment: settings.OKTO_ENVIRONMENT || "sandbox",
+  vendorPrivKey: settings.OKTO_VENDOR_PRIVATE_KEY || "", // todo: throw error if not set
+  vendorSWA: settings.OKTO_VENDOR_SWA || "",
   googleClientId: settings.GOOGLE_CLIENT_ID || "",
   googleClientSecret: settings.GOOGLE_CLIENT_SECRET || "",
-  idToken: settings.OKTO_GOOGLE_ID_TOKEN || "",
 });
