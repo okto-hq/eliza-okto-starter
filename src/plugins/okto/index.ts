@@ -15,7 +15,9 @@ import { getPortfolio, getAccount, getChains, getNftCollections, getOrdersHistor
 // import { orderHistoryAction } from "./actions/orderHistoryAction.ts";
 // import { swapTokenAction } from "./actions/swapTokenAction.ts";
 import { getGoogleIdToken } from "./google.ts";
-import { GetSupportedNetworksResponseData, Order, Token, UserNFTBalance, UserPortfolioData } from "@okto_web3/core-js-sdk/types";
+import { GetSupportedNetworksResponseData, Order, UserNFTBalance, UserPortfolioData } from "@okto_web3/core-js-sdk/types";
+import { tokenTransfer, nftTransfer, evmRawTransaction } from "@okto_web3/core-js-sdk/userop";
+import { NFTTransferIntentParams, RawTransactionIntentParams, TokenTransferIntentParams, Token, Wallet } from "./types.ts";
 
 export class OktoPlugin implements Plugin {
   readonly name: string = "okto";
@@ -73,7 +75,7 @@ export class OktoPlugin implements Plugin {
     return await getPortfolio(this.oktoClient);
   }
 
-  async getAccount(): Promise<ReturnType<typeof getAccount>> {
+  async getAccount(): Promise<Wallet[]> {
     return await getAccount(this.oktoClient);
   }
 
@@ -93,8 +95,29 @@ export class OktoPlugin implements Plugin {
     return await getPortfolioNFT(this.oktoClient);
   }
 
-  async getTokens(): Promise<ReturnType<typeof getTokens>> {
+  async getTokens(): Promise<Token[]> {
     return await getTokens(this.oktoClient);
+  }
+
+  async tokenTransfer(params: TokenTransferIntentParams): Promise<string> {
+    const userOp = await tokenTransfer(this.oktoClient, params);
+    const signedUserOp = await this.oktoClient.signUserOp(userOp);
+    const tx = await this.oktoClient.executeUserOp(signedUserOp);
+    return tx;
+  }
+
+  async nftTransfer(params: NFTTransferIntentParams): Promise<string> {
+    const userOp = await nftTransfer(this.oktoClient, params);
+    const signedUserOp = await this.oktoClient.signUserOp(userOp);
+    const tx = await this.oktoClient.executeUserOp(signedUserOp);
+    return tx;
+  }
+
+  async evmRawTransaction(params: RawTransactionIntentParams): Promise<string> {
+    const userOp = await evmRawTransaction(this.oktoClient, params);
+    const signedUserOp = await this.oktoClient.signUserOp(userOp);
+    const tx = await this.oktoClient.executeUserOp(signedUserOp);
+    return tx;
   }
 
 }
