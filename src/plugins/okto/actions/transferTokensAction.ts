@@ -5,6 +5,7 @@ import { getTokenAddress, handleApiError, validateSearchQuery } from "../utils.t
 import { OktoPlugin } from "../index.ts";
 import { TokenTransferIntentParams } from "../types.ts";
 import { Address } from "@okto_web3/core-js-sdk/types";
+import { NETWORK_CHAIN_INFO } from "../constants.ts";
 
 export const TransferSchema = z.object({
     network: z.string().toUpperCase(),
@@ -120,14 +121,17 @@ export const transferTokensAction = (plugin: OktoPlugin): Action => {
                 return;
             }
 
-          let transactionHash = "" // TODO: get transaction hash from okto
-
           try {
+            const chainInfo = NETWORK_CHAIN_INFO[data.network_name];
+            if (!chainInfo) {
+              callback?.({ text: `Unsupported network: ${data.network_name}` }, []);
+              return;
+            }
             const tokenTransferIntentParams: TokenTransferIntentParams = {
               amount: Number(data.quantity),
               recipient: data.recipient_address as Address,
               token: data.token_address as Address | '',
-              chain: data.network_name, // TODO: get chain id from okto
+              chain: chainInfo.CAIP_ID
             };
             const orderid = await plugin.tokenTransfer(tokenTransferIntentParams);
 
