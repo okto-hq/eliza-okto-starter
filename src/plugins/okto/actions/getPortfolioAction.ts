@@ -20,7 +20,7 @@ export function getPortfolioString(portfolio: UserPortfolioData): string {
     output += `  Total Holding Price USDT: ${portfolio.aggregatedData.totalHoldingPriceUsdt}\n\n`;
     
     // Group Tokens
-    if (portfolio.groupTokens.length > 0) {
+    if (portfolio.groupTokens && portfolio.groupTokens.length > 0) {
         output += "Group Tokens:\n";
         portfolio.groupTokens.forEach((group, groupIndex) => {
             output += `\nGroup ${groupIndex + 1}: ${group.name} (${group.symbol})\n`;
