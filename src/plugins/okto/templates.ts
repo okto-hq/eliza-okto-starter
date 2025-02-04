@@ -33,3 +33,27 @@ Only Provide the details in the following JSON format, focusing exclusively on t
 Here are the recent user messages for context (focus on the last message):
 {{recentMessages}}
 `;
+
+export const nftTransferTemplate = `
+Extract the following details from the most recent message for processing NFT transfer using the Okto SDK:
+- **recipientWalletAddress** (string): The wallet address to which the NFT should be transferred.
+- **nftId** (string): The unique identifier of the NFT.
+- **collectionAddress** (string): The contract address of the NFT collection.
+- **amount** (number): The quantity of NFTs to transfer (usually 1 for ERC721, but may vary for ERC1155).
+- **nftType** (string): Either 'ERC721' or 'ERC1155'.
+- **caip2Id** (string): The CAIP-2 identifier for the blockchain network (e.g., "eip155:1" for Ethereum mainnet).
+
+Only provide the details in the following JSON format, focusing exclusively on the most recent message:
+
+{
+    "recipientWalletAddress": "<recipient_wallet_address>",
+    "nftId": "<nft_id>",
+    "collectionAddress": "<collection_address>",
+    "amount": <amount>,
+    "nftType": "<ERC721 or ERC1155>",
+    "caip2Id": "<caip2_id>"
+}
+
+Here are the recent user messages for context (focus on the last message):
+{{recentMessages}}
+`;
