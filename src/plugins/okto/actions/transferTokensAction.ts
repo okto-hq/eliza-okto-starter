@@ -2,7 +2,10 @@ import { Action, composeContext, elizaLogger, generateObject, HandlerCallback, I
 import { transferTemplate } from "../templates.ts";
 import { z } from "zod";
 import { getTokenAddress, handleApiError, validateSearchQuery } from "../utils.ts";
-import { OktoSDKPlugin } from "../index.ts";
+import { OktoPlugin } from "../index.ts";
+import { TokenTransferIntentParams } from "../types.ts";
+import { Address } from "@okto_web3/core-js-sdk/types";
+import { NETWORK_CHAIN_INFO } from "../constants.ts";
 
 export const TransferSchema = z.object({
     network: z.string().toUpperCase(),
@@ -17,7 +20,7 @@ function isTransferContent(object: any): object is z.infer<typeof TransferSchema
 };
 
 
-export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
+export const transferTokensAction = (plugin: OktoPlugin): Action => {
     return {
       name: "OKTO_TRANSFER",
       description: "Perform Token transfers using okto",
@@ -90,6 +93,7 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
           elizaLogger.info("OKTO Token Transfer Details: ", transferObject)
           let tokenAddress = ""
           try {
+            // TODO: get token address from okto
             tokenAddress = getTokenAddress(transferObject.network, transferObject.assetId)
           } catch (error) {
             elizaLogger.error("Error getting token address: ", error)
@@ -117,20 +121,29 @@ export const transferTokensAction = (plugin: OktoSDKPlugin): Action => {
                 return;
             }
 
-          let transactionHash = "" // TODO: get transaction hash from okto
-
           try {
-            const order = await plugin.oktoWallet.transferTokens(data);
-            elizaLogger.info("ORDER: ", order)
+            const chainInfo = NETWORK_CHAIN_INFO[data.network_name];
+            if (!chainInfo) {
+              callback?.({ text: `Unsupported network: ${data.network_name}` }, []);
+              return;
+            }
+            const tokenTransferIntentParams: TokenTransferIntentParams = {
+              amount: Number(data.quantity),
+              recipient: data.recipient_address as Address,
+              token: data.token_address as Address | '',
+              chain: chainInfo.CAIP_ID
+            };
+            const orderid = await plugin.tokenTransfer(tokenTransferIntentParams);
 
-            await new Promise(resolve => setTimeout(resolve, 10000));
+            const resultStr = `✅ Okto Transfer intented submitted.
+Submitted transfer of ${data.quantity} ${transferObject.assetId} to ${data.recipient_address} on ${data.network_name}
+Order ID: ${orderid}
+`
+            elizaLogger.info(resultStr)
 
             callback?.(
                   {
-                    text: `✅ Okto Transfer intented submitted.
-Submitted transfer of ${data.quantity} ${transferObject.assetId} to ${data.recipient_address} on ${data.network_name}
-Order ID: ${order.orderId}
-`,
+                    text: resultStr,
                   },
                   []
               );

@@ -23,7 +23,7 @@ import {
   parseArguments,
 } from "./config/index.ts";
 import { initializeDatabase } from "./database/index.ts";
-import OktoSearchPlugin from "./plugins/okto/index.ts";
+import OktoPlugin from "./plugins/okto/index.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,7 +59,7 @@ export function createAgent(
     plugins: [
       bootstrapPlugin,
       nodePlugin,
-      OktoSearchPlugin,
+      OktoPlugin,
       character.settings?.secrets?.WALLET_PUBLIC_KEY ? solanaPlugin : null,
     ].filter(Boolean),
     providers: [],

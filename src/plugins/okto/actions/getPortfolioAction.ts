@@ -1,26 +1,52 @@
 import { Action, elizaLogger, HandlerCallback, IAgentRuntime, Memory, State } from "@elizaos/core";
 import { handleApiError, validateSearchQuery } from "../utils.ts";
-import { OktoSDKPlugin } from "../index.ts";
-import { PortfolioData } from "../types.ts";
+import { OktoPlugin } from "../index.ts";
+import { UserPortfolioData } from "@okto_web3/core-js-sdk/types";
 
-function prettyPrintPortfolio(portfolio: PortfolioData) : string {
-    if (!portfolio || portfolio.tokens.length === 0) {
-        return "No tokens found in portfolio.";
+export function getPortfolioString(portfolio: UserPortfolioData): string {
+    if (!portfolio) {
+        return "No portfolio data available.";
     }
     
-    return portfolio.tokens
-        .map((token, index) => {
-            const baseInfo = `${index + 1}. ${token.token_name} (${token.network_name})\n` +
-                           `   • Quantity: ${token.quantity}`;
-            
-            return token.token_address 
-                ? `${baseInfo}\n   • Address: \`${token.token_address}\`` 
-                : baseInfo;
-        })
-        .join('\n\n');
+    let output = "Okto Portfolio\n";
+    output += "===============\n\n";
+    
+    // Aggregated Data
+    output += "Aggregated Data:\n";
+    output += `  Holdings Count         : ${portfolio.aggregatedData.holdingsCount}\n`;
+    output += `  Holdings Price INR     : ${portfolio.aggregatedData.holdingsPriceInr}\n`;
+    output += `  Holdings Price USDT    : ${portfolio.aggregatedData.holdingsPriceUsdt}\n`;
+    output += `  Total Holding Price INR : ${portfolio.aggregatedData.totalHoldingPriceInr}\n`;
+    output += `  Total Holding Price USDT: ${portfolio.aggregatedData.totalHoldingPriceUsdt}\n\n`;
+    
+    // Group Tokens
+    if (portfolio.groupTokens && portfolio.groupTokens.length > 0) {
+        output += "Group Tokens:\n";
+        portfolio.groupTokens.forEach((group, groupIndex) => {
+            output += `\nGroup ${groupIndex + 1}: ${group.name} (${group.symbol})\n`;
+            output += `  Group Token Address : ${group.tokenAddress}\n`;
+            output += `  Balance             : ${group.balance}\n`;
+            output += `  Network             : ${group.networkName}\n`;
+            output += `  Sub Tokens:\n`;
+            if (group.tokens.length > 0) {
+                group.tokens.forEach((token, tokenIndex) => {
+                    output += `    ${tokenIndex + 1}. ${token.name} (${token.symbol})\n`;
+                    output += `       Address : ${token.tokenAddress}\n`;
+                    output += `       Balance : ${token.balance}\n`;
+                    output += `       Network : ${token.networkName}\n`;
+                });
+            } else {
+                output += "    No sub tokens available.\n";
+            }
+        });
+    } else {
+        output += "No group tokens available.\n";
+    }
+    
+    return output;
 }
 
-export const getPortfolioAction = (plugin: OktoSDKPlugin): Action => {
+export const getPortfolioAction = (plugin: OktoPlugin): Action => {
     return {
       name: "OKTO_GET_PORTFOLIO",
       description: "Get Okto Portfolio",
@@ -71,12 +97,13 @@ export const getPortfolioAction = (plugin: OktoSDKPlugin): Action => {
           validateSearchQuery(message.content);
 
           try {
-            const portfolio = await plugin.oktoWallet.getPortfolio();
-            // console.log("portfolio: ", portfolio)
+            const portfolio = await plugin.getPortfolio();
+            const portfolioString = getPortfolioString(portfolio);
+            elizaLogger.log("Okto Portfolio: ", portfolioString)
 
             callback?.(
                   {
-                    text: `✅ Okto Portfolio: \n${prettyPrintPortfolio(portfolio)}`,
+                    text: `✅ Okto Portfolio: \n${portfolioString}`,
                   },
                   []
               );
