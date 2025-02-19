@@ -13,6 +13,7 @@ import { getTokensAction } from "./actions/getTokensAction.ts";
 import { transferTokensAction } from "./actions/transferTokensAction.ts";
 import { nftTransferAction } from "./actions/nftTransferAction.ts";
 import { OktoService } from "./services/oktoService.ts";
+import { swapTokensAction } from "./actions/swapAction.ts";
 
 export class OktoPlugin implements Plugin {
   readonly name: string = "okto";
@@ -32,6 +33,7 @@ export class OktoPlugin implements Plugin {
     getTokensAction(this),
     transferTokensAction(this),
     nftTransferAction(this),
+    swapTokensAction(this),
   ];
 
   services: Service[] = [this.oktoService];

@@ -11,6 +11,8 @@ import { getPortfolio, getAccount, getChains, getNftCollections, getOrdersHistor
 import { GetSupportedNetworksResponseData, Order, UserNFTBalance, UserPortfolioData } from "@okto_web3/core-js-sdk/types";
 import { tokenTransfer, nftTransfer, evmRawTransaction } from "@okto_web3/core-js-sdk/userop";
 import { NFTTransferIntentParams, RawTransactionIntentParams, TokenTransferIntentParams, Token, Wallet } from "../types.ts";
+import { Address } from "viem";
+import { ethers } from "ethers";
 
 export class OktoService extends Service {
     static serviceType: ServiceType = ServiceType.TRANSCRIPTION;
@@ -103,6 +105,75 @@ export class OktoService extends Service {
     const signedUserOp = await this.oktoClient.signUserOp(userOp);
     const tx = await this.oktoClient.executeUserOp(signedUserOp);
     return tx;
+  }
+
+  async tokenSwap(params: {
+    amountIn: number;
+    minAmountOut: number;
+    from: string;
+    router: string;
+    tokenIn: string;
+    tokenOut: string;
+    chain: string;
+    isNative: boolean;
+  }): Promise<string> {
+    const deadline = Math.floor(Date.now() / 1000) + 300;
+    
+    if (!params.isNative) {
+      const swapAbi = [
+        "function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] calldata path, address to, uint256 deadline) returns (uint[] memory amounts)"
+      ];
+      const swapInterface = new ethers.utils.Interface(swapAbi);
+      const amountInBN = ethers.BigNumber.from(params.amountIn);
+      const minAmountOutBN = ethers.BigNumber.from(params.minAmountOut);
+      const encodedData = swapInterface.encodeFunctionData("swapExactTokensForTokens", [
+        amountInBN,
+        minAmountOutBN,
+        [params.tokenIn, params.tokenOut],
+        params.from,
+        deadline,
+      ]);
+  
+      const swapTransactionIntentParams = {
+        caip2Id: params.chain,
+        transaction: {
+          from: params.from as Address,
+          to: params.router as Address,
+          value: 0,
+          data: encodedData as `0x${string}`,
+        },
+      };
+      console.log("Executing ERC20 Swap Transaction with params:", swapTransactionIntentParams);
+      const createdUserOp = await evmRawTransaction(this.oktoClient, swapTransactionIntentParams);
+      const signedOp = await this.oktoClient.signUserOp(createdUserOp);
+      return await this.oktoClient.executeUserOp(signedOp);
+    } else {
+      const swapAbi = [
+        "function swapExactETHForTokens(uint256 amountOutMin, address[] calldata path, address to, uint256 deadline) payable returns (uint[] memory amounts)"
+      ];
+      const swapInterface = new ethers.utils.Interface(swapAbi);
+      const minAmountOutBN = ethers.BigNumber.from(params.minAmountOut);
+      const encodedData = swapInterface.encodeFunctionData("swapExactETHForTokens", [
+        minAmountOutBN,
+        [params.tokenIn, params.tokenOut],
+        params.from,
+        deadline,
+      ]);
+  
+      const swapTransactionIntentParams = {
+        caip2Id: params.chain,
+        transaction: {
+          from: params.from as Address,
+          to: params.router as Address,
+          value: Number(params.amountIn),
+          data: encodedData as `0x${string}`,
+        },
+      };
+      console.log("Executing Native Swap Transaction with params:", swapTransactionIntentParams);
+      const createdUserOp = await evmRawTransaction(this.oktoClient, swapTransactionIntentParams);
+      const signedOp = await this.oktoClient.signUserOp(createdUserOp);
+      return await this.oktoClient.executeUserOp(signedOp);
+    }
   }
 
     
