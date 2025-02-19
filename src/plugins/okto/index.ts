@@ -27,13 +27,13 @@ export class OktoPlugin implements Plugin {
 
   constructor() {
     const environment = settings.OKTO_ENVIRONMENT || "sandbox";
-    const vendorPrivKey = settings.OKTO_VENDOR_PRIVATE_KEY;
-    if (!vendorPrivKey) {
-      throw new Error("OKTO_VENDOR_PRIVATE_KEY is required for OktoPlugin and is not set");
+    const clientPrivateKey = settings.OKTO_CLIENT_PRIVATE_KEY;
+    if (!clientPrivateKey) {
+      throw new Error("OKTO_CLIENT_PRIVATE_KEY is required for OktoPlugin and is not set");
     }
-    const vendorSWA = settings.OKTO_VENDOR_SWA;
-    if (!vendorSWA) {
-      throw new Error("OKTO_VENDOR_SWA is required for OktoPlugin and is not set");
+    const clientSWA = settings.OKTO_CLIENT_SWA;
+    if (!clientSWA) {
+      throw new Error("OKTO_CLIENT_SWA is required for OktoPlugin and is not set");
     }
     const googleClientId = settings.GOOGLE_CLIENT_ID;
     if (!googleClientId) {
@@ -46,8 +46,8 @@ export class OktoPlugin implements Plugin {
 
     const clientConfig: OktoClientConfig = {
       environment: environment as any,
-      vendorPrivKey: vendorPrivKey as any,
-      vendorSWA: vendorSWA as any,
+      clientPrivateKey: clientPrivateKey as any,
+      clientSWA: clientSWA as any,
     }
     this.oktoClient = new OktoClient(clientConfig);
     
