@@ -11,7 +11,7 @@
     "stop:service:all": "pm2 stop all"
   },
   "dependencies": {
-    "@okto_web3/core-js-sdk": "0.0.0-dev.37",
+    "@okto_web3/core-js-sdk": "0.0.0-dev.59",
     "@elizaos/adapter-postgres": "0.1.7",
     "@elizaos/adapter-sqlite": "0.1.7",
     "@elizaos/client-auto": "0.1.7",
