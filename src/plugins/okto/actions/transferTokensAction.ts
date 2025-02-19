@@ -133,7 +133,7 @@ export const transferTokensAction = (plugin: OktoPlugin): Action => {
               token: data.token_address as Address | '',
               caip2Id: chainInfo.CAIP_ID
             };
-            const orderid = await plugin.tokenTransfer(tokenTransferIntentParams);
+            const orderid = await plugin.oktoService.tokenTransfer(tokenTransferIntentParams);
 
             const resultStr = `✅ Okto Transfer intented submitted.
 Submitted transfer of ${data.quantity} ${transferObject.assetId} to ${data.recipient_address} on ${data.network_name}

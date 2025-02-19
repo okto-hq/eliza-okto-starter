@@ -129,7 +129,7 @@ export const nftTransferAction = (plugin: OktoPlugin): Action => {
               nftType: data.nftType,
             };
             // Call the NFT transfer method on the Okto plugin
-            const orderid = await plugin.nftTransfer(nftTransferIntentParams);
+            const orderid = await plugin.oktoService.nftTransfer(nftTransferIntentParams);
 
             const resultStr = `✅ Okto NFT Transfer intent submitted.
 Submitted NFT ${data.nftId} transfer from collection ${data.collectionAddress} to ${data.recipientWalletAddress} on network ${data.caip2Id}

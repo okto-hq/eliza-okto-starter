@@ -72,7 +72,7 @@ export const getTokensAction = (plugin: OktoPlugin): Action => {
         validateSearchQuery(message.content);
         
         try {
-          const tokens = await plugin.getTokens();
+          const tokens = await plugin.oktoService.getTokens();
           const tokensString = getTokensString(tokens);
           elizaLogger.log("Okto Tokens: ", tokensString);
           

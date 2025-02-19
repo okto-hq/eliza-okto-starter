@@ -84,7 +84,7 @@ export const getAccountAction = (plugin: OktoPlugin): Action => {
           validateSearchQuery(message.content);
 
           try {
-            const account = await plugin.getAccount();
+            const account = await plugin.oktoService.getAccount();
             const accountString = getAccountString(account);
             elizaLogger.log("Okto Account: ", accountString);
 

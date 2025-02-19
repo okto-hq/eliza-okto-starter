@@ -78,7 +78,7 @@ export const getNftCollectionsAction = (plugin: OktoPlugin): Action => {
           validateSearchQuery(message.content);
 
           try {
-            const nftCollections = await plugin.getNftCollections();
+            const nftCollections = await plugin.oktoService.getNftCollections();
             const nftCollectionsString = getNftCollectionsString(nftCollections);
             elizaLogger.log("Okto NFT Collections: ", nftCollectionsString);
 

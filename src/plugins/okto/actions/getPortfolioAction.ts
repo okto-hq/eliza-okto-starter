@@ -97,7 +97,7 @@ export const getPortfolioAction = (plugin: OktoPlugin): Action => {
           validateSearchQuery(message.content);
 
           try {
-            const portfolio = await plugin.getPortfolio();
+            const portfolio = await plugin.oktoService.getPortfolio();
             const portfolioString = getPortfolioString(portfolio);
             elizaLogger.log("Okto Portfolio: ", portfolioString)
 
