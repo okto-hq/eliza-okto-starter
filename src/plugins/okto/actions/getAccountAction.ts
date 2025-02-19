@@ -23,7 +23,7 @@ export function getAccountString(account: Wallet[]): string {
             output += `  CAIP ID      : ${wallet.caipId}\n`;
             output += `  Network Name : ${wallet.networkName}\n`;
             output += `  Address      : ${wallet.address}\n`;
-            output += `  Network ID   : ${wallet.networkId}\n`;
+            output += `  CAIP2 ID     : ${wallet.caip2Id}\n`;
             output += `  Network Sym. : ${wallet.networkSymbol}\n`;
         });
     } else {
@@ -84,7 +84,7 @@ export const getAccountAction = (plugin: OktoPlugin): Action => {
           validateSearchQuery(message.content);
 
           try {
-            const account = await plugin.getAccount();
+            const account = await plugin.oktoService.getAccount();
             const accountString = getAccountString(account);
             elizaLogger.log("Okto Account: ", accountString);
 

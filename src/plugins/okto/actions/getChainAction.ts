@@ -65,7 +65,7 @@ export const getChainAction = (plugin: OktoPlugin): Action => {
         validateSearchQuery(message.content);
         
         try {
-          const chains = await plugin.getChains();
+          const chains = await plugin.oktoService.getChains();
           const chainsString = getChainsString(chains);
           elizaLogger.log("Supported Chains:", chainsString);
           

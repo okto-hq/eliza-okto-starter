@@ -5,13 +5,12 @@
   "type": "module",
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
-    "start": "tsc && node --loader ts-node/esm src/index.ts",
+    "start": "tsc && node --loader ts-node/esm src/index.ts --character='./characters/okto.character.json'",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'node --loader ts-node/esm' src/index.ts",
     "start:service:all": "pm2 start pnpm --name=\"all\" --restart-delay=3000 --max-restarts=10 -- run start:all",
     "stop:service:all": "pm2 stop all"
   },
   "dependencies": {
-    "@okto_web3/core-js-sdk": "0.0.0-dev.37",
     "@elizaos/adapter-postgres": "0.1.7",
     "@elizaos/adapter-sqlite": "0.1.7",
     "@elizaos/client-auto": "0.1.7",
@@ -25,10 +24,13 @@
     "@elizaos/plugin-node": "0.1.7",
     "@elizaos/plugin-solana": "0.1.7",
     "@elizaos/plugin-starknet": "0.1.7",
+    "@okto_web3/core-js-sdk": "0.0.0-dev.59",
     "@tavily/core": "0.0.2",
     "amqplib": "0.10.5",
     "axios": "^1.7.2",
     "better-sqlite3": "11.5.0",
+    "build": "^0.1.4",
+    "ethers": "5.7.2",
     "fs": "0.0.1-security",
     "google-auth-library": "^9.15.0",
     "net": "1.0.2",

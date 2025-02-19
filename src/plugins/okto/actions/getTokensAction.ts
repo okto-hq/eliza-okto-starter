@@ -20,7 +20,7 @@ export function getTokensString(tokens: Token[]): string {
     output += `  CAIP ID     : ${token.caipId}\n`;
     output += `  Group ID    : ${token.groupId}\n`;
     output += `  Is Primary  : ${token.isPrimary ? "Yes" : "No"}\n`;
-    output += `  Network ID  : ${token.networkId}\n`;
+    output += `  CAIP2 ID    : ${token.caip2Id}\n`;
     output += `  Network Name: ${token.networkName}\n`;
     output += `  Onramp    : ${token.isOnrampEnabled ? "Enabled" : "Disabled"}\n`;
     output += `  Image URL   : ${token.image}\n`;
@@ -72,7 +72,7 @@ export const getTokensAction = (plugin: OktoPlugin): Action => {
         validateSearchQuery(message.content);
         
         try {
-          const tokens = await plugin.getTokens();
+          const tokens = await plugin.oktoService.getTokens();
           const tokensString = getTokensString(tokens);
           elizaLogger.log("Okto Tokens: ", tokensString);
           

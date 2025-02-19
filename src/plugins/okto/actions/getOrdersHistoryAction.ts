@@ -63,7 +63,7 @@ export const getOrdersHistoryAction = (plugin: OktoPlugin): Action => {
           validateSearchQuery(message.content);
 
           try {
-            const ordersHistory = await plugin.getOrdersHistory();
+            const ordersHistory = await plugin.oktoService.getOrdersHistory();
             const ordersHistoryString = getOrdersHistoryString(ordersHistory);
             elizaLogger.log("Okto Orders History: ", ordersHistoryString);
 

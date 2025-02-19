@@ -72,7 +72,7 @@ export const getPortfolioNftAction = (plugin: OktoPlugin): Action => {
         validateSearchQuery(message.content);
 
         try {
-          const nftPortfolio = await plugin.getPortfolioNFT();
+          const nftPortfolio = await plugin.oktoService.getPortfolioNFT();
           const nftPortfolioString = getPortfolioNftString(nftPortfolio);
           elizaLogger.log("Okto NFT Portfolio: ", nftPortfolioString);
 
