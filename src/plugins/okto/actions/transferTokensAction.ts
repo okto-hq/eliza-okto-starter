@@ -131,7 +131,7 @@ export const transferTokensAction = (plugin: OktoPlugin): Action => {
               amount: Number(data.quantity),
               recipient: data.recipient_address as Address,
               token: data.token_address as Address | '',
-              chain: chainInfo.CAIP_ID
+              caip2Id: chainInfo.CAIP_ID
             };
             const orderid = await plugin.tokenTransfer(tokenTransferIntentParams);
 
